@@ -16,3 +16,4 @@ cabal.sandbox.config
 .stack-work/
 static/tmp/
 .dir-locals.el
+yesod-devel/
