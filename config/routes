@@ -8,3 +8,4 @@
 
 /comments CommentR POST
 /post PostR GET POST
+/matches ShowR GET POST

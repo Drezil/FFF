@@ -59,8 +59,8 @@ $newline never
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
               <li><a href="@{HomeR}">Home</a>
-              <li><a href="#">Post</a>
-              <li><a href="#">Search</a>
+              <li><a href="@{PostR}">Post</a>
+              <li><a href="@{ShowR}">Search</a>
             <ul class="nav navbar-nav navbar-right">
               <li><a href="@{AuthR LoginR}">Login</a>
       <div id="main" role="main">

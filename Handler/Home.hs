@@ -20,7 +20,7 @@ getHomeR = do
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
         aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
+        setTitle "Find Fellow Friends!"
         $(widgetFile "homepage")
 
 postHomeR :: Handler Html
@@ -34,7 +34,7 @@ postHomeR = do
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
         aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
+        setTitle "Find Fellow Friends!"
         $(widgetFile "homepage")
 
 sampleForm :: Form (FileInfo, Text)
