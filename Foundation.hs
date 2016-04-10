@@ -4,13 +4,17 @@ import Import.NoFoundation
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
-import Yesod.Auth.OpenId    (authOpenId, IdentifierType (Claimed))
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
+import Yesod.Auth.OAuth2.Github (oauth2Github)
+import Yesod.Facebook (YesodFacebook(..))
+import Yesod.Auth.Facebook.ServerSide
+import Facebook (Credentials(..))
 
+import Yesod.Auth()
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
@@ -146,11 +150,17 @@ instance YesodAuth App where
                 }
 
     -- You can add other plugins like Google Email, email or OAuth here
-    authPlugins _ = [authOpenId Claimed []]
+    authPlugins app = [ oauth2Github (appGithubAppId . appSettings $ app) (appGithubSecret . appSettings $ app)
+                    , authFacebook []
+                    ]
 
     authHttpManager = getHttpManager
 
 instance YesodAuthPersist App
+
+instance YesodFacebook App where
+        fbCredentials app = Credentials "Find Fellow Friends" (appFacebookAppId . appSettings $ app) (appFacebookSecret . appSettings $ app)
+        fbHttpManager = authHttpManager
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.

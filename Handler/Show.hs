@@ -6,7 +6,7 @@ getShowR :: Handler Html
 getShowR = do
         res <- runDB $ selectList [] []
         defaultLayout [whamlet|
-$forall (Entity _ (Post n g l lat lng d)) <- res
+$forall (Entity _ (Post n g l lat lng d _)) <- res
   <div class="panel panel-default">
     <div class="panel-heading">
       <h3 class="panel-title">#{n}
@@ -16,6 +16,7 @@ $forall (Entity _ (Post n g l lat lng d)) <- res
       <span .label .label-default>Latitude: #{lat}
       <span .label .label-default>Longitude: #{lng}
       <p>#{d}
+      <a .btn .btn-defaiult href="#">Write User »
 |]
 
 postShowR :: Handler Html

@@ -11,11 +11,13 @@ data RawPost = RawPost
                , rPlat :: Text
                , rPlng :: Text
                , rpdesc :: Text
+               , user :: UserId
                }
 
 getPostR :: Handler Html
 getPostR = do
-        (widget,enctype) <- generateFormPost $ renderBootstrap3 BootstrapBasicForm postForm
+        uid <- requireAuthId
+        (widget,enctype) <- generateFormPost $ renderBootstrap3 BootstrapBasicForm (postForm uid)
         defaultLayout $ [whamlet|
 <form method="post" enctype=#{enctype}>
     ^{widget}
@@ -25,7 +27,8 @@ getPostR = do
 
 postPostR :: Handler Html
 postPostR = do
-        ((res,widget),enctype) <- runFormPost validPostForm
+        uid <- requireAuthId
+        ((res,widget),enctype) <- runFormPost (validPostForm uid)
         case res of
           FormSuccess p -> do
                              runDB $ insert_ p
@@ -38,15 +41,15 @@ postPostR = do
   <button type="submit" class="btn btn-default" role="button">Post! »
 |]
 
-validPostForm :: Markup -> MForm Handler (FormResult Post, Widget)
-validPostForm html = do
-        (res, widget) <- renderBootstrap3 BootstrapBasicForm postForm html
+validPostForm :: UserId -> Markup -> MForm Handler (FormResult Post, Widget)
+validPostForm uid html = do
+        (res, widget) <- renderBootstrap3 BootstrapBasicForm (postForm uid) html
         return $ case res of
                    FormSuccess r -> convert r
                       where
                         msg = "Invalid coordinates" :: Text
-                        convert (RawPost n g l lat lng d) = case (,) <$> convlat lat <*> convlng lng of
-                                        Just (lat', lng') -> (FormSuccess (Post n g l lat' lng' d), widget)
+                        convert (RawPost n g l lat lng d u) = case (,) <$> convlat lat <*> convlng lng of
+                                        Just (lat', lng') -> (FormSuccess (Post n g l lat' lng' d u), widget)
                                         Nothing -> (FormFailure [msg], [whamlet|
                                                 <p .errors>#{msg}
                                                 ^{widget}
@@ -63,14 +66,15 @@ convlng c = readMay c
             --TODO: add parser for 51ˇ21'22''N-Format
 
 convWrong :: RawPost -> Post
-convWrong (RawPost n g l _ _ d) = Post n g l 0 0 d
+convWrong (RawPost n g l _ _ d u) = Post n g l 0 0 d u
 
-postForm :: AForm Handler RawPost
-postForm = RawPost
+postForm :: UserId -> AForm Handler RawPost
+postForm uid = RawPost
         <$> areq textField (withAutofocus $ withPlaceholder "Bernd" $ bfs ("Nickname" :: Text)) Nothing
         <*> areq textField (withPlaceholder "unicorn" $ bfs ("Gender" :: Text)) Nothing
         <*> areq textField (withPlaceholder "anyone" $ bfs ("Looking for..." :: Text)) Nothing
         <*> areq textField (withPlaceholder "Latitude" $ bfs ("Latitude" :: Text)) Nothing
         <*> areq textField (withPlaceholder "Longitude" $ bfs ("Longitude" :: Text)) Nothing
         <*> (unTextarea <$> areq textareaField (withPlaceholder "I want some choclate... and candy.." $ bfs ("Description" :: Text)) Nothing)
+        <*> pure uid
 

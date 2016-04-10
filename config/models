@@ -10,12 +10,6 @@ Email
     verkey Text Maybe
     UniqueEmail email
 
-Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived.
-    message Text
-    userId UserId Maybe
-    deriving Eq
-    deriving Show
-
 Post
     name Text
     gender Text
@@ -23,6 +17,7 @@ Post
     lat Double
     lon Double
     description Text
+    poster UserId
 
 
  -- By default this file is used in Model.hs (which is imported by Foundation.hs)
